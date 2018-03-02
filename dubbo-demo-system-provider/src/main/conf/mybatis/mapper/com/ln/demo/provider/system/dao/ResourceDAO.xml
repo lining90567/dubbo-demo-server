@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ln.demo.provider.system.dao.ResourceDAO">
+	<resultMap id="resourceMap" type="Resource">
+		<id column="id" property="id" />
+		<result column="name" property="name" />
+		<result column="code" property="code" />
+		<result column="url" property="url" />
+		<result column="permission" property="permission" />
+		<result column="is_locked" property="locked" />
+		<association property="router" javaType="Router">
+			<id column="router_id" property="id" />
+			<result column="router_name" property="name" />
+		</association>
+	</resultMap>
+
+	<resultMap id="shiroResourceMap" type="Resource">
+		<id column="id" property="id" />
+		<result column="name" property="name" />
+		<result column="code" property="code" />
+		<result column="url" property="url" />
+        <association property="router" javaType="Router">
+            <id column="router_id" property="id" />
+        </association>		
+	</resultMap>
+
+	<select id="listResource" parameterType="Map" resultMap="shiroResourceMap">
+		SELECT id,name,code,url,router_id
+		FROM sys_resource
+		<where>
+			<if test="locked != null">
+				AND is_locked=#{locked}
+			</if>
+			<if test="routerId != null">
+				AND router_id=#{routerId}
+			</if>
+		</where>
+	</select>
+
+	<select id="listAuthorized" resultMap="shiroResourceMap">
+		SELECT
+		r.id,r.name,r.code,r.url
+		FROM sys_resource r
+		INNER JOIN sys_permission p
+		ON r.id=p.resource_id
+		INNER JOIN sys_user_role
+		ur ON
+		p.role_id=ur.role_id
+		INNER JOIN sys_user u ON ur.user_id=u.id
+		WHERE
+		u.id=#{userId} AND r.is_locked=0
+	</select>
+
+	<insert id="saveResource" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO sys_resource(name,code,url,permission,is_locked,router_id)
+		VALUES(#{name}, #{code}, #{url}, #{permission}, #{locked}, #{router.id})
+	</insert>
+	
+	<update id="updateResource">
+	   UPDATE sys_resource SET
+	   name=#{name}, code=#{code}, url=#{url}, permission=#{permission}, is_locked=#{locked}, router_id=#{router.id}
+	   WHERE id=#{id} 
+	</update>
+	
+	<delete id="removeResource">
+	   DELETE FROM sys_resource WHERE id=#{id}
+	</delete>
+	
+	<select id="getById" resultMap="resourceMap">
+	   SELECT r1.*,r2.name AS router_name FROM 
+	   sys_resource r1 INNER JOIN sys_router r2 ON r1.router_id=r2.id
+	   WHERE r1.id=#{id}
+	</select>
+	
+	<select id="listByRouterId" resultMap="resourceMap">
+       SELECT r1.*,r2.name AS router_name FROM 
+       sys_resource r1 INNER JOIN sys_router r2 ON r1.router_id=r2.id
+       WHERE r1.router_id=#{routerId}
+	</select>
+</mapper>  

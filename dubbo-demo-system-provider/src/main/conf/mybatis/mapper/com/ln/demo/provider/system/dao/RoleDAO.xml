@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ln.demo.provider.system.dao.RoleDAO">
+    <resultMap id="roleMap" type="Role">
+        <id column="id" property="id" />
+        <result column="code" property="code" />
+        <result column="name" property="name" />
+        <result column="is_locked" property="locked" />        
+    </resultMap>
+
+	<select id="countRole" parameterType="Map" resultType="int">
+		SELECT COUNT(*) FROM sys_role
+		<where>
+			<if test="name != null">
+				AND name LIKE "%"#{name}"%"
+			</if>
+		</where>
+	</select>
+	<select id="listRole" parameterType="PageRequest" resultMap="roleMap">
+        SELECT * FROM sys_role
+		<where>
+            <if test="parameters.name != null">
+                AND name LIKE "%"#{parameters.name}"%"
+            </if>
+		</where>
+		LIMIT #{limit} OFFSET #{offset}
+	</select>
+	
+	<insert id="saveRole" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_role(code,name,is_locked)
+        VALUES(#{code}, #{name}, #{locked})	   
+	</insert>
+	
+	<select id="getById" resultMap="roleMap">
+	   SELECT * FROM sys_role WHERE id=#{id}
+	</select>
+	
+	<update id="updateRole">
+	   UPDATE sys_role SET code=#{code}, name=#{name}, is_locked=#{locked}
+	   WHERE id=#{id}
+	</update>
+	
+	<delete id="removeRole">
+	   DELETE FROM sys_role WHERE id=#{id}
+	</delete>
+	
+	<select id="listAllRole" resultMap="roleMap">
+	   SELECT * FROM sys_role WHERE is_locked=0
+	</select>
+</mapper>  

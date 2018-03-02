@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ln.demo.provider.system.dao.RouterPermissionDAO">
+    <resultMap id="permissionMapByUser" type="Router">
+        <id column="id" property="id" />
+        <id column="code" property="code" />
+        <id column="name" property="name" />
+        <id column="level" property="level" />
+        <id column="url" property="url" />
+        <id column="properties" property="properties" />
+	    <association property="parent" javaType="Router">
+	        <id column="parent_id" property="id" />
+	    </association>
+    </resultMap>
+
+    <select id="listByUserId" resultMap="permissionMapByUser">
+        SELECT router.id,router.code,router.name,router.level,router.url,router.properties,router.parent_id
+        FROM sys_router_permission rp 
+        INNER JOIN sys_role role ON rp.role_id=role.id
+        INNER JOIN sys_router router ON rp.router_id=router.id
+        INNER JOIN sys_user_role ur ON role.id=ur.role_id
+        WHERE ur.user_id=#{userId} AND router.is_locked=0 AND role.is_locked=0
+        ORDER BY router.display_order
+    </select>
+    
+    <delete id="removeByRoleId">
+        DELETE FROM sys_router_permission WHERE role_id=#{roleId}
+    </delete>
+    
+    <insert id="savePermission">
+        INSERT INTO sys_router_permission
+        VALUES
+        <foreach collection="arg1" item="routerId" separator=",">
+            (#{arg0}, #{routerId})
+        </foreach>
+    </insert>    
+
+</mapper>  

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ln.demo.provider.system.dao.ResourcePermissionDAO">
+	<resultMap id="resourcePermissionMap" type="Resource">
+		<id column="resource_id" property="id" />
+		<id column="permission" property="permission" />
+	</resultMap>	
+
+	<select id="listByUserId" resultMap="resourcePermissionMap">
+		SELECT p.*
+		FROM sys_resource_permission p INNER JOIN sys_role role ON p.role_id=role.id
+		INNER JOIN sys_user_role ur ON role.id=ur.role_id
+		WHERE ur.user_id=#{userId}
+	</select>
+	
+    <select id="listPermission" resultMap="resourcePermissionMap">
+        SELECT p.resource_id,resource.permission
+        FROM sys_resource_permission p INNER JOIN sys_role role ON p.role_id=role.id
+        INNER JOIN sys_resource resource ON p.resource_id=resource.id
+        INNER JOIN sys_user_role ur ON role.id=ur.role_id
+        WHERE ur.user_id=#{arg0}
+        <if test="arg1 != null and arg1 > 0">
+            AND resource.router_id=#{arg1}
+        </if>        
+    </select>	
+	
+    <select id="listCodeByUserId" resultType="String">
+        SELECT resource.permission
+        FROM sys_resource_permission p 
+        INNER JOIN sys_resource resource ON p.resource_id=resource.id
+        INNER JOIN sys_role role ON p.role_id=role.id
+        INNER JOIN sys_user_role ur ON role.id=ur.role_id
+        WHERE ur.user_id=#{userId}
+    </select>
+    
+    <delete id="removeByRoleId">
+        DELETE FROM sys_resource_permission WHERE role_id=#{roleId}
+    </delete>
+    
+    <select id="listByRoleId" resultType="Integer">
+        SELECT resource_id FROM sys_resource_permission WHERE role_id=#{roleId}
+    </select>
+    
+    <insert id="savePermission">
+        INSERT INTO sys_resource_permission
+        VALUES
+        <foreach collection="arg1" item="resourceId" separator=",">
+            (#{arg0}, #{resourceId})
+        </foreach>
+    </insert>     
+
+</mapper>  

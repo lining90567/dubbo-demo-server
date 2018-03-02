@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans   
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="jwtUtils" class="com.ln.demo.util.JwtUtils">
+		<constructor-arg name="id" value="jwt" type="String" />
+		<constructor-arg name="secret" value="6686df7fc3a34e26a61c034d5ec82488" type="String" />
+		<constructor-arg name="ttlMillis" value="3600000" type="long" />
+	</bean>
+
+</beans>

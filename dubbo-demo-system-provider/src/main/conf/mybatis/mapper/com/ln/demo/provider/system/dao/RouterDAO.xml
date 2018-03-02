@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ln.demo.provider.system.dao.RouterDAO">
+    <resultMap id="listRouterMap" type="Router">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="code" property="code" />
+        <result column="url" property="url" />
+        <result column="level" property="level" />
+        <result column="is_locked" property="locked" />
+        <result column="display_order" property="displayOrder" />        
+        <association property="parent" javaType="Router">
+            <id column="parent_id" property="id" />
+            <result column="parent_name" property="name" />
+        </association>
+    </resultMap>
+    
+    <resultMap id="routerMap" type="Router">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="url" property="url" />
+        <result column="code" property="code" />
+        <result column="level" property="level" />
+        <result column="is_locked" property="locked" />
+        <result column="display_order" property="displayOrder" />
+        <result column="properties" property="properties" />
+        <association property="parent" javaType="Router">
+            <id column="parent_id" property="id" />
+            <id column="parent_name" property="name" />
+        </association>         
+    </resultMap>
+
+    <select id="countRouter" parameterType="Map" resultType="int">
+        SELECT COUNT(*) FROM sys_router r
+        <where>
+            <if test="name != null">
+                r.name LIKE "%"#{name}"%"
+            </if>
+        </where>         
+    </select>
+    <select id="listRouter" parameterType="PageRequest" resultMap="listRouterMap">
+        SELECT r.*,r1.name AS parent_name 
+        FROM sys_router r LEFT JOIN sys_router r1 ON r.parent_id=r1.id
+        <where>
+            <if test="parameters!= null and parameters.name != null">
+                r.name LIKE "%"#{parameters.name}"%"
+            </if>
+        </where>        
+        ORDER BY display_order
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+    
+    <select id="getById" resultMap="routerMap">
+        SELECT r1.*,r2.name AS parent_name
+        FROM sys_router r1 LEFT JOIN sys_router r2 ON r1.parent_id=r2.id
+        WHERE r1.id=#{id}
+    </select>
+    
+    <select id="listByParentId" resultMap="listRouterMap">
+        SELECT * FROM sys_router WHERE parent_id=#{parentId} AND is_locked=0
+        ORDER BY display_order
+    </select>
+    
+    <update id="updateRouter">
+        UPDATE sys_router
+        SET name=#{name},code=#{code},url=#{url},parent_id=#{parent.id},level=#{level},
+            is_locked=#{locked},display_order=#{displayOrder},properties=#{properties}
+        WHERE id=#{id}
+    </update>
+    
+    <insert id="saveRouter" parameterType="Router" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_router
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            name,parent_id,level,is_locked,display_order,
+            <if test='code != null and code != ""'>
+                code,
+            </if>
+            <if test='url != null and url != ""'>
+                url,
+            </if>
+            <if test='properties != null and properties != ""'>
+                properties,
+            </if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            #{name},#{parent.id}, #{level}, #{locked}, #{displayOrder},
+            <if test='code != null and code != ""'>
+                #{code},
+            </if>
+            <if test='url != null and url != ""'>
+                #{url},
+            </if>
+            <if test='properties != null and properties != ""'>
+                #{properties},
+            </if>            
+        </trim>
+    </insert>    
+    
+    <delete id="removeRouter">
+        DELETE FROM sys_router WHERE id=#{id}
+    </delete>
+    
+    <select id="listAll" resultMap="listRouterMap">
+        SELECT id,name,parent_id,level,is_locked,display_order
+        FROM sys_router
+        <where>
+            <if test="!_parameter">
+                is_locked=0
+            </if>
+        </where>
+        ORDER BY display_order   
+    </select>
+</mapper>  

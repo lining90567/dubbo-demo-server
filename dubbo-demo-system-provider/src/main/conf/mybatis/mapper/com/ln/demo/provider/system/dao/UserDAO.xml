@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ln.demo.provider.system.dao.UserDAO">
+	<resultMap id="userMap" type="User">
+		<id column="id" property="id" />
+		<result column="name" property="name" />
+		<result column="login_name" property="loginName" />
+		<result column="salt" property="salt" />
+		<result column="login_password" property="password" />
+		<result column="is_locked" property="locked" />
+		<result column="created_at" property="createdAt" />
+		<association property="createdBy" column="created_by" javaType="User">
+			<id property="id" column="id" />
+			<result property="name" column="name" />
+		</association>
+	</resultMap>
+
+	<resultMap id="listUserMap" type="User">
+		<id column="id" property="id" />
+		<result column="name" property="name" />
+		<result column="login_name" property="loginName" />
+		<result column="is_locked" property="locked" />
+		<result column="created_at" property="createdAt" />
+		<association property="createdBy" column="created_by"
+			javaType="User">
+			<result property="name" column="creator" />
+		</association>
+	</resultMap>
+
+	<select id="getByLoginName" resultMap="userMap">
+		SELECT *
+		FROM sys_user
+		WHERE login_name=#{loginName} AND deleted_at=0
+	</select>
+
+	<select id="getById" resultMap="userMap">
+		SELECT *
+		FROM sys_user
+		WHERE id=#{id}
+	</select>
+
+	<insert id="saveUser" parameterType="User" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO sys_user(name,
+		login_name,salt,login_password,is_locked,created_at,created_by)
+		VALUES(#{name}, #{loginName}, #{salt}, #{password}, #{locked},
+		#{createdAt}, #{createdBy.id})
+	</insert>
+
+	<update id="updatePassword">
+		UPDATE sys_user SET
+		salt=#{arg1},
+		login_password=#{arg2}
+		WHERE id=#{arg0}
+	</update>
+
+	<update id="updateUser">
+		UPDATE sys_user
+		<set>
+			<if test="name != null">name=#{name},</if>
+			<if test="loginName != null">login_name=#{loginName},</if>
+			<if test="locked != null">is_locked=#{locked},</if>
+		</set>
+		WHERE id=#{id}
+	</update>
+
+    <select id="countUser" parameterType="Map" resultType="int">
+        SELECT COUNT(*) FROM sys_user u1 WHERE u1.deleted_at=0
+        <if test="name != null">
+            AND (u1.name LIKE "%"#{name}"%" OR u1.login_name LIKE "%"#{name}"%")
+        </if>
+        <if test="locked != null">
+            AND u1.is_locked=#{locked}
+        </if>
+    </select>
+    <select id="listUser" parameterType="PageRequest" resultMap="listUserMap">
+        SELECT u1.id,u1.name,u1.login_name,u1.is_locked,u1.created_at,u2.name
+        AS creator
+        FROM sys_user u1 INNER JOIN sys_user u2 ON u1.created_by=u2.id
+        WHERE u1.deleted_at=0
+        <if test="parameters!= null and parameters.name != null">
+            AND (u1.name LIKE "%"#{parameters.name}"%" OR u1.login_name LIKE
+            "%"#{parameters.name}"%")
+        </if>
+        <if test="parameters!= null and parameters.locked != null">
+            AND u1.is_locked=#{parameters.locked}
+        </if>
+ 
+        <if test="order != null and order != ''">
+            ORDER BY ${order}
+        </if>
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+    
+    <update id="removeUser">
+        UPDATE sys_user SET deleted_at=#{arg1}
+        WHERE id=#{arg0}
+    </update>
+</mapper>  
