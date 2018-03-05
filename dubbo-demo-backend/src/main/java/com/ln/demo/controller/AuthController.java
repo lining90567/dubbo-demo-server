@@ -39,11 +39,6 @@ public class AuthController {
     
     @PostMapping("/token")
     public ResponseEntity<?> getToken(HttpServletRequest request, String loginName, String password) {
-        //http://www.jianshu.com/p/0a5d3d07a151
-        //https://www.cnblogs.com/hujunzheng/p/7210157.html
-        //https://www.cnblogs.com/Mr-4/p/5133992.html
-        //https://github.com/ameizi/shiro-jwt-springboot/blob/master/src/main/java/net/ameizi/config/ShiroConfig.java
-        //http://blog.mothership.top/2017/07/21/2017-7-21/index.html
         // 验证用户信息
         UserDTO user = userService.getByLoginName(loginName);
         if(user == null) {

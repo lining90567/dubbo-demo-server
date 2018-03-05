@@ -38,8 +38,6 @@ public class ChainDefinitionSectionMetaSource implements FactoryBean<Ini.Section
 
 	@Override
 	public Section getObject() throws Exception {
-	    //http://blog.csdn.net/he90227/article/details/38663553
-	    //http://blog.csdn.net/j_bang/article/details/78233724
 		/*******************************************
 		 * rest：例子/admins/user/**=rest[user]，根据请求的方法，相当于/admins/user/**=perms[user:method]
 		 * ,其中method为post，get，delete等。
