@@ -33,6 +33,7 @@ Dubbo-Demo-Server是基于Spring MVC+MyBatis+Shiro+Dubbo开发的分布式后台
 ### 其他事项
 1. 前端应用请参见 [dubbo-demo-client](https://github.com/lining90567/dubbo-demo-client)
 2. 为了方便单机开发测试，没有使用zookeeper注册dubbo服务，如果需要使用zookeeper，需要修改dubbo-demo-system-providerde的spring-dubbo-provider.xml文件与dubbo-demo-backend的spring-dubbo-consumer.xml中的dubbo:registry配置。
+3. 数据库使用了json类型，请使用MySQL 5.7以上版本（含5.7）。
  
 **作者信息**
 
