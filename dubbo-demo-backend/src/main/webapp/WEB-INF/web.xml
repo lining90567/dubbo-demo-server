@@ -45,21 +45,21 @@
 		</init-param>
 	</filter>
 
+    <!-- 允许跨域访问，如果配置了网关，可以去掉该设置。 -->
+    <filter>
+        <filter-name>CorsFilter</filter-name>
+        <filter-class>com.ln.demo.filter.CORSFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>CorsFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
 	<filter-mapping>
 		<filter-name>encodingFilter</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
 	<filter-mapping>
 		<filter-name>shiroFilter</filter-name>
-		<url-pattern>/*</url-pattern>
-	</filter-mapping>
-	<!-- 允许跨域访问，如果配置了网关，可以去掉该设置。 -->
-	<filter>
-		<filter-name>CorsFilter</filter-name>
-		<filter-class>com.ln.demo.filter.CORSFilter</filter-class>
-	</filter>
-	<filter-mapping>
-		<filter-name>CorsFilter</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
 
